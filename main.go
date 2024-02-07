@@ -44,20 +44,6 @@ func init() {
 	}
 }
 
-type User struct {
-	Username string `form:"username" binding:"required"`
-	Password string `form:"password" binding:"required"`
-}
-
-func ParseUser(c *gin.Context) {
-	var user User
-	if err := c.ShouldBind(&user); err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-	fmt.Printf("User: %#v\n", user)
-}
-
 func main() {
 	router := gin.Default()
 
