@@ -146,3 +146,32 @@ func downloadAllHandler(c *gin.Context) {
 		}
 	}
 }
+
+// update or replace an existing file in the bucket
+func updateFileHandler(c *gin.Context) {
+	bucketName := "kalki"
+	objectName := "file.txt"
+
+	// Open the file
+	file, err := c.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	openedFile, err := file.Open()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	defer openedFile.Close()
+
+	// Upload the file to the bucket
+	info, err := minioClient.PutObject(context.Background(), bucketName, objectName, openedFile, file.Size, minio.PutObjectOptions{ContentType: "application/octet-stream"})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Successfully uploaded %s of size %d", info.Key, info.Size)})
+}
